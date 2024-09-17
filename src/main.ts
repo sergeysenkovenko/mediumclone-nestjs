@@ -22,10 +22,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(3000);
-
+  const port = 3000;
+  await app.listen(port);
   Logger.log(
-    `🚀 Application is running on: http://localhost:3000/${globalPrefix}`,
+    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
   );
 }
 bootstrap();

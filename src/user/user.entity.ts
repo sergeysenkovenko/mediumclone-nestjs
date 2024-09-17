@@ -18,11 +18,11 @@ export class UserEntity {
   @Column({ nullable: true, default: '' })
   image: string;
 
-  @Column({ nullable: false })
+  @Column({ select: false, nullable: false })
   password: string;
 
   @BeforeInsert()
-  async hashPassword() {
+  private async hashPassword() {
     this.password = await hash(this.password, 10);
   }
 }

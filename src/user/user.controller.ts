@@ -9,7 +9,10 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from '@app/user/user.service';
-import { CreateUserResponseDto } from '@app/user/dto/createUser.dto';
+import {
+  CreateUserResponseDto,
+  LoginUserResponseDto,
+} from '@app/user/dto/createUser.dto';
 import { IUserResponse } from '@app/user/types/userResponse.interface';
 
 @ApiTags('User')
@@ -33,19 +36,19 @@ export class UserController {
     return this.userService.createUserResponse(user);
   }
 
-  @Post()
+  @Post('login')
   @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login User' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User Authorized',
-    type: CreateUserResponseDto,
+    type: LoginUserResponseDto,
   })
   async login(
-    @Body() userCreateDto: CreateUserResponseDto,
+    @Body() userLoginDto: LoginUserResponseDto,
   ): Promise<IUserResponse> {
-    const user = await this.userService.create(userCreateDto.user);
+    const user = await this.userService.login(userLoginDto.user);
     return this.userService.createUserResponse(user);
   }
 }

@@ -1,21 +1,16 @@
 import { DataSourceOptions } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 
-const TYPEORM_HOST = 'localhost';
-const TYPEORM_USERNAME = 'mediumadmin';
-const TYPEORM_PASSWORD = '123';
-const TYPEORM_DATABASE = 'mediumclone';
-const TYPEORM_PORT = 5432;
-
-const ormconfig: DataSourceOptions = {
+export const getTypeOrmConfig = (
+  configService: ConfigService,
+): DataSourceOptions => ({
   type: 'postgres',
-  host: TYPEORM_HOST,
-  port: TYPEORM_PORT,
-  username: TYPEORM_USERNAME,
-  password: TYPEORM_PASSWORD,
-  database: TYPEORM_DATABASE,
+  host: configService.get('TYPEORM_HOST'),
+  port: configService.get('TYPEORM_PORT'),
+  username: configService.get('TYPEORM_USERNAME'),
+  password: configService.get('TYPEORM_PASSWORD'),
+  database: configService.get('TYPEORM_DATABASE'),
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
   synchronize: false,
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-};
-
-export default ormconfig;
+});

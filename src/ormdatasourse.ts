@@ -1,4 +1,11 @@
 import { DataSource } from 'typeorm';
-import ormconfig from '@app/ormconfig';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { getTypeOrmConfig } from '@app/ormconfig';
 
-export default new DataSource(ormconfig);
+ConfigModule.forRoot({
+  isGlobal: true,
+});
+
+const configService = new ConfigService();
+
+export default new DataSource(getTypeOrmConfig(configService));

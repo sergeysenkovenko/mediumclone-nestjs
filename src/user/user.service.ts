@@ -7,6 +7,7 @@ import { sign } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { compare } from 'bcrypt';
 import { UserResponseDto } from '@app/user/dto/userResponse.dto';
+import { UpdateUserDto } from '@app/user/dto/updateUser.dto';
 
 @Injectable()
 export class UserService {
@@ -59,8 +60,14 @@ export class UserService {
     return userByEmail;
   }
 
-  findById(id: number): Promise<UserEntity> {
-    return this.userRepository.findOne({
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
+    const user = await this.findById(id);
+    Object.assign(user, updateUserDto);
+    return await this.userRepository.save(user);
+  }
+
+  async findById(id: number): Promise<UserEntity> {
+    return await this.userRepository.findOne({
       where: { id },
     });
   }

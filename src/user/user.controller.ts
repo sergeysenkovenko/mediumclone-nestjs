@@ -5,6 +5,8 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Put,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -22,6 +24,11 @@ import {
 } from '@app/user/dto';
 import { User } from '@app/decorators/user.decorator';
 import { UserEntity } from '@app/user/user.entity';
+import { AuthGuard } from '@app/user/guards/auth.guard';
+import {
+  UpdateUserDto,
+  UpdateUserRequestDto,
+} from '@app/user/dto/updateUser.dto';
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -62,6 +69,7 @@ export class UserController {
   }
 
   @Get('user')
+  @UseGuards(AuthGuard)
   @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get current user' })
@@ -72,5 +80,26 @@ export class UserController {
   })
   async currentUser(@User() user: UserEntity): Promise<UserResponseDto> {
     return this.userService.createUserResponse(user);
+  }
+
+  @Put('user')
+  @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update current user' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User successfully updated',
+    type: UserResponseDto,
+  })
+  async update(
+    @User('id') userId: number,
+    @Body() userUpdateDto: UpdateUserRequestDto,
+  ): Promise<UserResponseDto> {
+    const updatedUser = await this.userService.update(
+      userId,
+      userUpdateDto.user,
+    );
+    return this.userService.createUserResponse(updatedUser);
   }
 }

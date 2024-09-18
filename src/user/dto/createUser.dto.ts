@@ -1,4 +1,4 @@
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -19,18 +19,9 @@ export class CreateUserDto {
   readonly password: string;
 }
 
-export class CreateUserResponseDto {
+export class CreateUserRequestDto {
   @ApiProperty({ required: true })
   @ValidateNested()
   @Type(() => CreateUserDto)
   readonly user: CreateUserDto;
-}
-
-export class LoginUserDto extends OmitType(CreateUserDto, ['username']) {}
-
-export class LoginUserResponseDto {
-  @ApiProperty({ required: true })
-  @ValidateNested()
-  @Type(() => LoginUserDto)
-  readonly user: LoginUserDto;
 }

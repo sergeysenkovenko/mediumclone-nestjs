@@ -1,54 +1,76 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserService } from '@app/user/user.service';
 import {
-  CreateUserResponseDto,
-  LoginUserResponseDto,
-} from '@app/user/dto/createUser.dto';
-import { IUserResponse } from '@app/user/types/userResponse.interface';
+  CreateUserRequestDto,
+  LoginUserRequestDto,
+  UserResponseDto,
+} from '@app/user/dto';
+import { User } from '@app/decorators/user.decorator';
+import { UserEntity } from '@app/user/user.entity';
 
 @ApiTags('User')
-@Controller('users')
+@ApiBearerAuth()
+@Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
+  @Post('users')
   @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create User' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'User Created',
-    type: CreateUserResponseDto,
+    type: UserResponseDto,
   })
   async create(
-    @Body() userCreateDto: CreateUserResponseDto,
-  ): Promise<IUserResponse> {
+    @Body() userCreateDto: CreateUserRequestDto,
+  ): Promise<UserResponseDto> {
     const user = await this.userService.create(userCreateDto.user);
     return this.userService.createUserResponse(user);
   }
 
-  @Post('login')
+  @Post('users/login')
   @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login User' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User Authorized',
-    type: LoginUserResponseDto,
+    type: UserResponseDto,
   })
   async login(
-    @Body() userLoginDto: LoginUserResponseDto,
-  ): Promise<IUserResponse> {
+    @Body() userLoginDto: LoginUserRequestDto,
+  ): Promise<UserResponseDto> {
     const user = await this.userService.login(userLoginDto.user);
+    return this.userService.createUserResponse(user);
+  }
+
+  @Get('user')
+  @UsePipes(new ValidationPipe())
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get current user' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User data received',
+    type: UserResponseDto,
+  })
+  async currentUser(@User() user: UserEntity): Promise<UserResponseDto> {
     return this.userService.createUserResponse(user);
   }
 }

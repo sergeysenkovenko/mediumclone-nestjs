@@ -2,11 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '@app/user/user.entity';
-import { CreateUserDto, LoginUserDto } from '@app/user/dto/createUser.dto';
+import { CreateUserDto, LoginUserDto } from '@app/user/dto';
 import { sign } from 'jsonwebtoken';
-import { IUserResponse } from '@app/user/types/userResponse.interface';
 import { ConfigService } from '@nestjs/config';
 import { compare } from 'bcrypt';
+import { UserResponseDto } from '@app/user/dto/userResponse.dto';
 
 @Injectable()
 export class UserService {
@@ -59,6 +59,12 @@ export class UserService {
     return userByEmail;
   }
 
+  findById(id: number): Promise<UserEntity> {
+    return this.userRepository.findOne({
+      where: { id },
+    });
+  }
+
   generateJWT(user: UserEntity): string {
     const secretJWT = this.configService.get('JWT_ACCESS_SECRET');
 
@@ -72,7 +78,7 @@ export class UserService {
     );
   }
 
-  createUserResponse(user: UserEntity): IUserResponse {
+  createUserResponse(user: UserEntity): UserResponseDto {
     return {
       user: {
         ...user,

@@ -17,6 +17,7 @@ async function bootstrap() {
     .setTitle('Medium clone NestJS')
     .setDescription('The Medium clone API')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -25,10 +25,7 @@ import {
 import { User } from '@app/decorators/user.decorator';
 import { UserEntity } from '@app/user/user.entity';
 import { AuthGuard } from '@app/user/guards/auth.guard';
-import {
-  UpdateUserDto,
-  UpdateUserRequestDto,
-} from '@app/user/dto/updateUser.dto';
+import { UpdateUserRequestDto } from '@app/user/dto/updateUser.dto';
 
 @ApiTags('User')
 @ApiBearerAuth()

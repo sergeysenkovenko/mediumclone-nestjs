@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { ArticleEntity } from '@app/article/article.entity';
 import { UserEntity } from '@app/user/user.entity';
 import { ArticleResponseDto, CreateArticleDto } from '@app/article/dto';
@@ -29,6 +29,19 @@ export class ArticleService {
     newArticle.author = currentUser;
 
     return await this.articleRepository.save(newArticle);
+  }
+
+  async deleteArticle(userId: number, slug: string): Promise<DeleteResult> {
+    const article = await this.findBySlug(slug);
+
+    if (userId !== article.author.id) {
+      throw new HttpException(
+        'You are not an author of this article',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    return await this.articleRepository.delete({ slug });
   }
 
   async findBySlug(slug: string): Promise<ArticleEntity> {

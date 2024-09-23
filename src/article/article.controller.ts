@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -22,6 +23,7 @@ import { AuthGuard } from '@app/user/guards/auth.guard';
 import { UserEntity } from '@app/user/user.entity';
 import { User } from '@app/decorators/user.decorator';
 import { ArticleResponseDto, CreateArticleRequestDto } from '@app/article/dto';
+import { DeleteResult } from 'typeorm';
 
 @ApiTags('Articles')
 @ApiBearerAuth()
@@ -66,5 +68,21 @@ export class ArticleController {
   ): Promise<ArticleResponseDto> {
     const article = await this.articleService.findBySlug(slug);
     return this.articleService.createArticleResponse(article);
+  }
+
+  @Delete(':slug')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'slug', required: true, description: 'Article slug' })
+  @ApiOperation({ summary: 'Delete Article by slug' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Article was deleted',
+  })
+  async delete(
+    @User('id') userId: number,
+    @Param('slug') slug: string,
+  ): Promise<DeleteResult> {
+    return this.articleService.deleteArticle(userId, slug);
   }
 }

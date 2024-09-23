@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -22,7 +23,11 @@ import { ArticleService } from '@app/article/article.service';
 import { AuthGuard } from '@app/user/guards/auth.guard';
 import { UserEntity } from '@app/user/user.entity';
 import { User } from '@app/decorators/user.decorator';
-import { ArticleResponseDto, CreateArticleRequestDto } from '@app/article/dto';
+import {
+  ArticleResponseDto,
+  CreateArticleRequestDto,
+  UpdateArticleRequestDto,
+} from '@app/article/dto';
 import { DeleteResult } from 'typeorm';
 
 @ApiTags('Articles')
@@ -84,5 +89,30 @@ export class ArticleController {
     @Param('slug') slug: string,
   ): Promise<DeleteResult> {
     return this.articleService.deleteArticle(userId, slug);
+  }
+
+  @Put(':slug')
+  @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'slug', required: true, description: 'Article slug' })
+  @ApiOperation({ summary: 'Update Article by slug' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Article was updated',
+    type: ArticleResponseDto,
+  })
+  async update(
+    @User('id') userId: number,
+    @Param('slug') slug: string,
+    @Body() articleUpdateDto: UpdateArticleRequestDto,
+  ): Promise<ArticleResponseDto> {
+    const article = await this.articleService.updateArticle(
+      userId,
+      slug,
+      articleUpdateDto.article,
+    );
+
+    return this.articleService.createArticleResponse(article);
   }
 }

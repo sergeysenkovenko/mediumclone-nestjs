@@ -3,7 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import { ArticleEntity } from '@app/article/article.entity';
 import { UserEntity } from '@app/user/user.entity';
-import { ArticleResponseDto, CreateArticleDto } from '@app/article/dto';
+import {
+  ArticleResponseDto,
+  CreateArticleDto,
+  UpdateArticleDto,
+} from '@app/article/dto';
 import slugify from 'slugify';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -42,6 +46,29 @@ export class ArticleService {
     }
 
     return await this.articleRepository.delete({ slug });
+  }
+
+  async updateArticle(
+    userId: number,
+    slug: string,
+    updateArticleDto: UpdateArticleDto,
+  ): Promise<ArticleEntity> {
+    const article = await this.findBySlug(slug);
+
+    if (userId !== article.author.id) {
+      throw new HttpException(
+        'You are not an author of this article',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    Object.assign(article, updateArticleDto);
+
+    if (updateArticleDto.title) {
+      article.slug = this.getSlug(updateArticleDto.title);
+    }
+
+    return await this.articleRepository.save(article);
   }
 
   async findBySlug(slug: string): Promise<ArticleEntity> {

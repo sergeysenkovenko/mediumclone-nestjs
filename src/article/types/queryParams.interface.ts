@@ -3,4 +3,5 @@ export interface IQueryParams {
   offset?: number;
   author?: string;
   tag?: string;
+  favorited?: string;
 }

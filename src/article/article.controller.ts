@@ -65,6 +65,12 @@ export class ArticleController {
     type: String,
     description: 'Tag name',
   })
+  @ApiQuery({
+    name: 'favorited',
+    required: false,
+    type: String,
+    description: 'Username',
+  })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get articles list' })
   @ApiResponse({
@@ -154,6 +160,52 @@ export class ArticleController {
       userId,
       slug,
       articleUpdateDto.article,
+    );
+
+    return this.articleService.createArticleResponse(article);
+  }
+
+  @Post(':slug/favorite')
+  @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'slug', required: true, description: 'Article slug' })
+  @ApiOperation({ summary: 'Add article to favorites' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Article added to favorites',
+    type: ArticleResponseDto,
+  })
+  async favorite(
+    @User('id') userId: number,
+    @Param('slug') slug: string,
+  ): Promise<ArticleResponseDto> {
+    const article = await this.articleService.addArticleToFavorites(
+      userId,
+      slug,
+    );
+
+    return this.articleService.createArticleResponse(article);
+  }
+
+  @Delete(':slug/favorite')
+  @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'slug', required: true, description: 'Article slug' })
+  @ApiOperation({ summary: 'Remove article from favorites' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Article removed from favorites',
+    type: ArticleResponseDto,
+  })
+  async unFavorite(
+    @User('id') userId: number,
+    @Param('slug') slug: string,
+  ): Promise<ArticleResponseDto> {
+    const article = await this.articleService.removeArticleFromFavorites(
+      userId,
+      slug,
     );
 
     return this.articleService.createArticleResponse(article);

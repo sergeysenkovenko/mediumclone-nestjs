@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
+import { DataSource, DeleteResult, Repository } from 'typeorm';
 import { ArticleEntity } from '@app/article/article.entity';
 import { UserEntity } from '@app/user/user.entity';
 import {
@@ -10,13 +10,70 @@ import {
 } from '@app/article/dto';
 import slugify from 'slugify';
 import { v4 as uuidv4 } from 'uuid';
+import { ArticlesResponseDto } from '@app/article/dto/articlesResponse.dto';
+import { IQueryParams } from '@app/article/types/queryParams.interface';
 
 @Injectable()
 export class ArticleService {
   constructor(
     @InjectRepository(ArticleEntity)
     private readonly articleRepository: Repository<ArticleEntity>,
+
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+
+    private dataSource: DataSource,
   ) {}
+
+  async findAll(
+    userId: number,
+    query: IQueryParams,
+  ): Promise<ArticlesResponseDto> {
+    const queryBuilder = this.dataSource
+      .getRepository(ArticleEntity)
+      .createQueryBuilder('articles')
+      .leftJoinAndSelect('articles.author', 'author');
+
+    queryBuilder.orderBy('articles.createdAt', 'DESC');
+    const articlesCount = await queryBuilder.getCount();
+
+    if (query.author) {
+      const author = await this.userRepository.findOne({
+        where: { username: query.author },
+      });
+
+      if (!author)
+        return {
+          articles: [],
+          articlesCount: 0,
+        };
+
+      queryBuilder.andWhere('articles.authorId = :id', {
+        id: author.id,
+      });
+    }
+
+    if (query.tag) {
+      queryBuilder.andWhere('articles.tagList LIKE :tag', {
+        tag: `%${query.tag}%`,
+      });
+    }
+
+    if (query.limit) {
+      queryBuilder.limit(query.limit);
+    }
+
+    if (query.offset) {
+      queryBuilder.offset(query.offset);
+    }
+
+    const articles = await queryBuilder.getMany();
+
+    return {
+      articles,
+      articlesCount,
+    };
+  }
 
   async createArticle(
     currentUser: UserEntity,

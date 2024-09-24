@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -16,6 +17,7 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -29,12 +31,53 @@ import {
   UpdateArticleRequestDto,
 } from '@app/article/dto';
 import { DeleteResult } from 'typeorm';
+import { ArticlesResponseDto } from '@app/article/dto/articlesResponse.dto';
+import { IQueryParams } from '@app/article/types/queryParams.interface';
 
 @ApiTags('Articles')
 @ApiBearerAuth()
 @Controller('articles')
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
+
+  @Get()
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Count of elements per page',
+  })
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    type: Number,
+    description: 'Pagination offset',
+  })
+  @ApiQuery({
+    name: 'author',
+    required: false,
+    type: String,
+    description: 'Author username',
+  })
+  @ApiQuery({
+    name: 'tag',
+    required: false,
+    type: String,
+    description: 'Tag name',
+  })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get articles list' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Articles list received',
+    type: ArticlesResponseDto,
+  })
+  async findAll(
+    @User() user: UserEntity,
+    @Query() query: IQueryParams,
+  ): Promise<ArticlesResponseDto> {
+    return await this.articleService.findAll(user?.id, query);
+  }
 
   @Post()
   @UseGuards(AuthGuard)

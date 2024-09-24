@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class UpdateUserDto {
   @ApiProperty({ required: false })
@@ -17,8 +16,7 @@ export class UpdateUserDto {
 }
 
 export class UpdateUserRequestDto {
-  @ApiProperty({ required: true })
+  @ApiProperty({ required: true, type: UpdateUserDto })
   @ValidateNested()
-  @Type(() => UpdateUserDto)
   readonly user: UpdateUserDto;
 }

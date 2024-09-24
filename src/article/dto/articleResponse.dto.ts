@@ -1,6 +1,5 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
 import { UserDataDto } from '@app/user/dto';
 
 class AuthorDto extends OmitType(UserDataDto, ['token']) {}
@@ -33,14 +32,12 @@ export class ArticleDataDto {
   @ApiProperty()
   favoritesCount: number;
 
-  @ApiProperty()
-  @Type(() => AuthorDto)
+  @ApiProperty({ type: AuthorDto })
   author: AuthorDto;
 }
 
 export class ArticleResponseDto {
-  @ApiProperty({ required: true })
+  @ApiProperty({ required: true, type: ArticleDataDto })
   @ValidateNested()
-  @Type(() => ArticleDataDto)
   article: ArticleDataDto;
 }

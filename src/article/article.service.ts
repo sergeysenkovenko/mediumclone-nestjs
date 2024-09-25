@@ -12,6 +12,7 @@ import slugify from 'slugify';
 import { v4 as uuidv4 } from 'uuid';
 import { ArticlesResponseDto } from '@app/article/dto/articlesResponse.dto';
 import { IQueryParams } from '@app/article/types/queryParams.interface';
+import { FollowEntity } from '@app/profile/follow.entity';
 
 @Injectable()
 export class ArticleService {
@@ -21,6 +22,9 @@ export class ArticleService {
 
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+
+    @InjectRepository(FollowEntity)
+    private readonly followRepository: Repository<FollowEntity>,
 
     private dataSource: DataSource,
   ) {}
@@ -103,6 +107,47 @@ export class ArticleService {
 
     return {
       articles: articlesWithFavorites,
+      articlesCount,
+    };
+  }
+
+  async getFeed(
+    userId: number,
+    query: Pick<IQueryParams, 'limit' | 'offset'>,
+  ): Promise<ArticlesResponseDto> {
+    const follows = await this.followRepository.find({
+      where: { followerId: userId },
+    });
+
+    if (!follows.length)
+      return {
+        articles: [],
+        articlesCount: 0,
+      };
+
+    const followingIds = follows.map((follow) => follow.followingId);
+
+    const queryBuilder = this.dataSource
+      .getRepository(ArticleEntity)
+      .createQueryBuilder('articles')
+      .leftJoinAndSelect('articles.author', 'author')
+      .where('articles.authorId IN (:...ids)', { ids: followingIds });
+
+    queryBuilder.orderBy('articles.createdAt', 'DESC');
+    const articlesCount = await queryBuilder.getCount();
+
+    if (query.limit) {
+      queryBuilder.limit(query.limit);
+    }
+
+    if (query.offset) {
+      queryBuilder.offset(query.offset);
+    }
+
+    const articles = await queryBuilder.getMany();
+
+    return {
+      articles,
       articlesCount,
     };
   }

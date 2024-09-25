@@ -85,6 +85,34 @@ export class ArticleController {
     return await this.articleService.findAll(user?.id, query);
   }
 
+  @Get('/feed')
+  @UseGuards(AuthGuard)
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Count of elements per page',
+  })
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    type: Number,
+    description: 'Pagination offset',
+  })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get feed' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Feed data received',
+    type: ArticlesResponseDto,
+  })
+  async getFeed(
+    @User('id') userId: number,
+    @Query() query: Pick<IQueryParams, 'limit' | 'offset'>,
+  ): Promise<ArticlesResponseDto> {
+    return await this.articleService.getFeed(userId, query);
+  }
+
   @Post()
   @UseGuards(AuthGuard)
   @UsePipes(new ValidationPipe())

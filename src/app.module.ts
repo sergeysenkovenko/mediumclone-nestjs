@@ -8,6 +8,7 @@ import { UserModule } from '@app/user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthMiddleware } from '@app/user/middlewares';
 import { ArticleModule } from '@app/article/article.module';
+import { ProfileModule } from '@app/profile/profile.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ArticleModule } from '@app/article/article.module';
     UserModule,
     TagModule,
     ArticleModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

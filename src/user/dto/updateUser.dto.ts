@@ -1,22 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ValidateNested } from 'class-validator';
+import { IsEmail, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpdateUserDto {
   @ApiProperty({ required: false })
-  readonly username: string;
+  @IsOptional()
+  @IsString()
+  readonly username?: string;
 
   @ApiProperty({ required: false })
-  readonly email: string;
+  @IsOptional()
+  @IsEmail()
+  readonly email?: string;
 
   @ApiProperty({ required: false })
-  readonly bio: string;
+  @IsOptional()
+  @IsString()
+  readonly bio?: string;
 
   @ApiProperty({ required: false })
-  readonly image: string;
+  @IsOptional()
+  @IsString()
+  readonly image?: string;
 }
 
 export class UpdateUserRequestDto {
   @ApiProperty({ required: true, type: UpdateUserDto })
   @ValidateNested()
+  @Type(() => UpdateUserDto)
   readonly user: UpdateUserDto;
 }

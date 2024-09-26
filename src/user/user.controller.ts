@@ -8,7 +8,6 @@ import {
   Put,
   UseGuards,
   UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -26,6 +25,7 @@ import { User } from '@app/decorators/user.decorator';
 import { UserEntity } from '@app/user/user.entity';
 import { AuthGuard } from '@app/user/guards/auth.guard';
 import { UpdateUserRequestDto } from '@app/user/dto/updateUser.dto';
+import { BackendValidationPipe } from '@app/pipes/backendValidation.pipe';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -34,7 +34,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('users')
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create User' })
   @ApiResponse({
@@ -50,7 +50,7 @@ export class UserController {
   }
 
   @Post('users/login')
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login User' })
   @ApiResponse({
@@ -67,7 +67,6 @@ export class UserController {
 
   @Get('user')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get current user' })
   @ApiResponse({
@@ -81,7 +80,7 @@ export class UserController {
 
   @Put('user')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update current user' })
   @ApiResponse({

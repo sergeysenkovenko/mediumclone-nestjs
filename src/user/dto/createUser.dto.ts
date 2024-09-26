@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateUserDto {
   @ApiProperty({ required: true })
@@ -21,5 +22,6 @@ export class CreateUserDto {
 export class CreateUserRequestDto {
   @ApiProperty({ required: true, type: CreateUserDto })
   @ValidateNested()
+  @Type(() => CreateUserDto)
   readonly user: CreateUserDto;
 }

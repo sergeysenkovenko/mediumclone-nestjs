@@ -11,7 +11,6 @@ import {
   Query,
   UseGuards,
   UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -33,6 +32,7 @@ import {
 import { DeleteResult } from 'typeorm';
 import { ArticlesResponseDto } from '@app/article/dto/articlesResponse.dto';
 import { IQueryParams } from '@app/article/types/queryParams.interface';
+import { BackendValidationPipe } from '@app/pipes/backendValidation.pipe';
 
 @ApiTags('Articles')
 @ApiBearerAuth()
@@ -115,7 +115,7 @@ export class ArticleController {
 
   @Post()
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create Article' })
   @ApiResponse({
@@ -170,7 +170,6 @@ export class ArticleController {
 
   @Put(':slug')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'slug', required: true, description: 'Article slug' })
   @ApiOperation({ summary: 'Update Article by slug' })
@@ -181,8 +180,8 @@ export class ArticleController {
   })
   async update(
     @User('id') userId: number,
-    @Param('slug') slug: string,
     @Body() articleUpdateDto: UpdateArticleRequestDto,
+    @Param('slug') slug: string,
   ): Promise<ArticleResponseDto> {
     const article = await this.articleService.updateArticle(
       userId,
@@ -195,7 +194,6 @@ export class ArticleController {
 
   @Post(':slug/favorite')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'slug', required: true, description: 'Article slug' })
   @ApiOperation({ summary: 'Add article to favorites' })
@@ -218,7 +216,6 @@ export class ArticleController {
 
   @Delete(':slug/favorite')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'slug', required: true, description: 'Article slug' })
   @ApiOperation({ summary: 'Remove article from favorites' })

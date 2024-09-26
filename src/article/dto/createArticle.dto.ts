@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateArticleDto {
   @ApiProperty({ required: true })
@@ -24,5 +25,6 @@ export class CreateArticleDto {
 export class CreateArticleRequestDto {
   @ApiProperty({ required: true, type: CreateArticleDto })
   @ValidateNested()
+  @Type(() => CreateArticleDto)
   readonly article: CreateArticleDto;
 }

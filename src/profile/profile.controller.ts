@@ -7,8 +7,6 @@ import {
   Param,
   Post,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -52,7 +50,6 @@ export class ProfileController {
 
   @Post(':username/follow')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiParam({
     name: 'username',
@@ -75,7 +72,6 @@ export class ProfileController {
 
   @Delete(':username/follow')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiParam({
     name: 'username',

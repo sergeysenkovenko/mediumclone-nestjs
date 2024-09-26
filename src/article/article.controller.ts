@@ -170,6 +170,7 @@ export class ArticleController {
 
   @Put(':slug')
   @UseGuards(AuthGuard)
+  @UsePipes(new BackendValidationPipe())
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'slug', required: true, description: 'Article slug' })
   @ApiOperation({ summary: 'Update Article by slug' })

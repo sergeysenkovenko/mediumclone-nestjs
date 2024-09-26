@@ -20,7 +20,7 @@ export class UserService {
   async create(user: CreateUserDto): Promise<UserEntity> {
     const errorResponse = {
       errors: {
-        'email or username': 'Email or username already exists',
+        'email or username': ['already exists'],
       },
     };
 
@@ -45,7 +45,7 @@ export class UserService {
   async login(user: LoginUserDto): Promise<UserEntity> {
     const errorResponse = {
       errors: {
-        'email or password': 'Invalid credentials',
+        'email or password': ['invalid credentials'],
       },
     };
 
